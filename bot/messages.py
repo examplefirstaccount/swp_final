@@ -36,6 +36,7 @@ def make_help_message() -> str:
         
         {html.bold(_("Team settings commands"))}
         /{command_names.set_meetings_time} - {command_descriptions.set_meetings_time}
+        /{command_names.add_recurring_message} - {command_descriptions.add_recurring_message}
         
         {html.bold(_("Personal settings commands"))}
         /{command_names.set_personal_meetings_days} - {command_descriptions.set_personal_meetings_days}

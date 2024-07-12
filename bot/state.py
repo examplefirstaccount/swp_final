@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from .chat import ChatId
 from .language import Language
+from .data_types import RecurringData
 
 
 class ChatUser(BaseModel):
@@ -50,6 +51,7 @@ class ChatState(Document):
     topic_id: Optional[int] = None
     chat_id: Annotated[ChatId, Indexed(index_type=pymongo.ASCENDING)]
     users: Dict[str, ChatUser] = dict()
+    recurring_messages: Dict[str, RecurringData] = dict()
 
 
 async def get_user(chat_state: ChatState, username: str) -> ChatUser:

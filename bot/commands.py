@@ -16,6 +16,7 @@ class BotCommands(BaseModel):
     set_meetings_time_zone: str
     set_meetings_time: str
     set_meetings_days: str
+    add_recurring_message: str
     # personal settings
     join: str
     skip: str
@@ -47,6 +48,7 @@ bot_command_names = BotCommandNames(
     set_meetings_time_zone="set_meetings_time_zone",
     set_meetings_time="set_meetings_time",
     set_meetings_days="set_meetings_days",
+    add_recurring_message="add_recurring_message",
     # personal settings
     join="join",
     skip="skip",
@@ -81,6 +83,7 @@ def bot_command_descriptions() -> BotCommandDescriptions:
         set_meetings_time_zone=_("Set meetings time zone."),
         set_meetings_time=_("Set meetings time."),
         set_meetings_days=_("Set meetings days."),
+        add_recurring_message=_("Add recurring message."),
         # personal settings
         join=_("Join meetings."),
         skip=_("Skip meetings."),
