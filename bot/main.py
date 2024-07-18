@@ -11,6 +11,7 @@ from .messages import make_daily_messages, make_help_message
 from .settings import Settings
 
 
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(

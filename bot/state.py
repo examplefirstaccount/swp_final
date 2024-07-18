@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import datetime, tzinfo
 from typing import Annotated, Optional, Dict, List
 from zoneinfo import ZoneInfo
 
 import pymongo
+import pytz
 from beanie import Document, Indexed
 from pydantic import BaseModel
 
@@ -52,7 +53,7 @@ class ChatState(Document):
     chat_id: Annotated[ChatId, Indexed(index_type=pymongo.ASCENDING)]
     users: Dict[str, ChatUser] = dict()
     recurring_messages: Dict[str, RecurringData] = dict()
-
+    time_zone_shift: int = 0
 
 async def get_user(chat_state: ChatState, username: str) -> ChatUser:
     """Load a user from the ChatState by username or create a new one if not found.

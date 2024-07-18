@@ -17,6 +17,7 @@ from .i18n_middleware import MyI18nMiddleware
 from aiogram.types import BotCommand
 from .custom_types import ChatId, SendMessage
 from .meeting import schedule_meeting
+from .recurring_message import update_recurring_message
 from .settings import Settings
 from .state import ChatState
 
@@ -76,5 +77,11 @@ async def main(settings: Settings) -> None:
     dp.include_router(router)
 
     await bot.delete_webhook(drop_pending_updates=True)
+
+    await update_recurring_message(
+        bot=bot,
+        scheduler=scheduler,
+        send_message=send_message
+    )
 
     await dp.start_polling(bot)
