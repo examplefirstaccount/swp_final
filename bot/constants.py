@@ -41,3 +41,5 @@ day_of_week_to_num = {
 sample_time = "2024-06-03T14:00:00+03:00"
 
 report_tag = "daily_report"
+
+title_max_length = 120

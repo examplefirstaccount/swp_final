@@ -33,7 +33,7 @@ from .constants import (
     datetime_time_format,
     iso8601,
     time_url,
-    sample_time,
+    sample_time, title_max_length,
 )
 
 from .commands import bot_command_names
@@ -263,9 +263,9 @@ def handle_team_settings_commands(
     @router.message(Command(bot_command_names.add_recurring_message), HasChatState())
     async def add_recurring_message(message: Message, chat_state: ChatState, state: FSMContext):
         await message.answer(
-            _("Send me the message title so that I can use it as the message identifier. The title must be a string in plain English (Allowed: Lowercase and uppercase letters, spaces). Length limit - {N} symbols.")
+            _("Send me the message title so that I can use it as the message identifier. Length limit - {N} symbols.")
             .format(
-                N=200  # todo: another number of symbols
+                N=title_max_length
             )
         )
         await state.set_state(RecurringAddingState.EnterRecurringTitle)
@@ -466,7 +466,7 @@ def handle_info_commands(
     async def get_report(message: Message, chat_state: ChatState):
         questions = make_daily_messages("")
 
-        responses_by_topic: Dict[int, [str]] = {i: [] for i in range(len(questions))}
+        responses_by_topic: Dict[int, list[str]] = {i: [] for i in range(len(questions))}
 
         for username, user in chat_state.users.items():
             for idx, response in user.responses.items():

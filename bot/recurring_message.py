@@ -12,7 +12,7 @@ from apscheduler.triggers.date import DateTrigger
 from cron_descriptor import get_description
 
 from .chat import ChatId
-from .constants import jobstore
+from .constants import jobstore, title_max_length
 from croniter import croniter
 from datetime import datetime, timezone, timedelta
 
@@ -20,7 +20,7 @@ from bot.custom_types import SendMessage
 from bot.fsm_states import RecurringAddingState
 from .data_types import RecurringData
 from .filters import HasChatState
-from .state import ChatState, save_state, load_state
+from .state import ChatState, save_state
 
 
 async def update_recurring_message(
@@ -60,7 +60,6 @@ def schedule_recurring(
         send_message: SendMessage,
         shift: int
 ):
-    # if datetime.now() <= interval_end:
     scheduler.add_job(
         jobstore=jobstore,
         func=send_recurring_messages,
@@ -84,8 +83,6 @@ def schedule_recurring(
         timezone=timezone(timedelta(hours=3 - shift)),
         misfire_grace_time=42,
     )
-    # else:
-    #     scheduler.remove_job(make_job_id(meeting_chat_id, meeting_topic_id), jobstore=jobstore)
 
     logging.info(scheduler.get_job(make_job_id(meeting_chat_id, meeting_topic_id)))
 
@@ -134,8 +131,6 @@ async def send_recurring_messages(
             timezone=timezone(timedelta(hours=3 - shift)),
             misfire_grace_time=42,
         )
-    # else:
-    #     scheduler.remove_job(make_job_id(meeting_chat_id, meeting_topic_id), jobstore=jobstore)
 
 
 def make_job_id(meeting_chat_id: int, meeting_topic_id: Optional[int]):
@@ -150,7 +145,11 @@ def handle_recurring_message(
 ):
     @router.message(RecurringAddingState.EnterRecurringTitle, HasChatState())
     async def handle_title(message: Message, state: FSMContext, chat_state: ChatState):
-        # здесь
+        if len(message.text) > title_max_length:
+            await message.answer(
+                _("Too long title. Send me the message title so that I can use it as the message identifier. Length limit - {N} symbols.").format(
+                    N=title_max_length))
+            return
         if message.text in chat_state.recurring_messages:
             await message.answer(
                 _("A message cannot be created with an existing title. The title must be a string in plain English (Allowed: Lowercase and uppercase letters, spaces). Length limit - 200 symbols."))
@@ -161,9 +160,6 @@ def handle_recurring_message(
             _("OK. Send me the interval so that I know when should I start and end sending the message. Enter the interval in DD.MM.YYYY - DD.MM.YYYY format. Example: 04.04.2024 - 05.05.2025"))
 
         await state.set_state(RecurringAddingState.EnterRecurringPeriod)
-        # await state.set_state(RecurringAddingState.data)
-        # data = await state.get_data()
-        # await message.answer(_(data["title"]))
 
     @router.message(RecurringAddingState.EnterRecurringPeriod)
     async def handle_period(message: Message, state: FSMContext):
