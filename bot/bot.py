@@ -16,6 +16,7 @@ from .i18n import i18n
 from .i18n_middleware import MyI18nMiddleware
 from .meeting import schedule_meeting
 from .middlewares import GroupCommandFilterMiddleware
+from .recurring_message import update_recurring_message
 from .settings import Settings
 from .state import ChatState
 
@@ -91,5 +92,10 @@ async def main(settings: Settings) -> None:
     await bot.delete_webhook(drop_pending_updates=True)
 
     await set_default_commands(bot=bot)
+    await update_recurring_message(
+        bot=bot,
+        scheduler=scheduler,
+        send_message=send_message
+    )
 
     await dp.start_polling(bot)

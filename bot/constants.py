@@ -30,3 +30,5 @@ days_array = [
 ]
 
 report_tag = "daily_report"
+
+title_max_length = 120

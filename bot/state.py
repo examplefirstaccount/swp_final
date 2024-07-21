@@ -1,8 +1,15 @@
+
 from datetime import datetime
 from typing import Annotated, Dict, List, Optional
 from uuid import UUID
 
+from datetime import datetime, tzinfo
+from typing import Annotated, Optional, Dict, List
+from zoneinfo import ZoneInfo
+
+
 import pymongo
+import pytz
 from beanie import Document, Indexed
 from pydantic import BaseModel
 
@@ -10,6 +17,7 @@ from .chat import ChatId
 from .constants import default_time_zone
 from .intervals import DaySchedule, default_schedule
 from .language import Language
+from .data_types import RecurringData
 
 
 class ChatUser(BaseModel):
@@ -73,7 +81,7 @@ class ChatState(Document):
     time_zone_shift: int = (
         0  # 0 for dynamic schedule; {UTC_offset_old - UTC_offset_new} for static schedule;
     )
-
+    recurring_messages: Dict[str, RecurringData] = dict()
 
 async def get_user(chat_state: ChatState, username: str) -> ChatUser:
     """Load a user from the ChatState by username or create a new one if not found.
