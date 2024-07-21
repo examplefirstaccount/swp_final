@@ -6,65 +6,26 @@ from aiogram import Bot, Router, html, types
 from aiogram.enums import ParseMode
 from aiogram.enums.chat_type import ChatType
 from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from aiogram.utils.i18n import I18n
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
-from aiogram.types import (
-    BotCommand,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    CallbackQuery,
-)
-from .state import (
-    ChatState,
-    save_state,
-    reset_state,
-    load_state,
-    get_user,
-    load_user_pm,
-    create_user_pm,
-    save_user_pm,
-)
-from .filters import HasMessageText, HasMessageUserUsername, HasChatState
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from .meeting import schedule_meeting
-from .custom_types import SendMessage, SaveState, LoadState
-from aiogram.utils.i18n import I18n
-from .i18n import _
-from .constants import (
-    day_of_week_pretty,
-    datetime_time_format,
-    iso8601,
-    time_url,
-    sample_time, title_max_length,
-)
-
 from .commands import bot_command_names
-from .constants import iso8601, report_tag, sample_time, time_url
+from .constants import (iso8601, report_tag, sample_time, time_url,
+                        title_max_length)
 from .custom_types import SendMessage
-
 from .filters import (HasChatState, HasMessageText, HasMessageUserUsername,
                       IsReplyToMeetingMessage)
+from .fsm_states import RecurringAddingState
 from .i18n import _
 from .intervals import pretty_weekdays, schedule_is_empty
 from .language import CallbackData, InlineKeyboardButtonName, Language
 from .meeting import schedule_meeting
 from .messages import (make_chat_state_messages, make_daily_messages,
                        make_help_message)
-
-from .filters import (
-    HasChatState,
-    HasMessageText,
-    HasMessageUserUsername,
-    IsReplyToMeetingMessage,
-)
-from .fsm_states import RecurringAddingState
-from .meeting import schedule_meeting
-from .recurring_message import handle_recurring_message, update_recurring_message
-
+from .recurring_message import (handle_recurring_message,
+                                update_recurring_message)
 from .reminder import update_reminders
 from .state import (ChatState, create_user_pm, get_user, load_state,
                     load_user_pm, reset_state, save_state, save_user_pm)

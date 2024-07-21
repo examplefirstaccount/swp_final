@@ -1,23 +1,16 @@
-
 from datetime import datetime
 from typing import Annotated, Dict, List, Optional
 from uuid import UUID
 
-from datetime import datetime, tzinfo
-from typing import Annotated, Optional, Dict, List
-from zoneinfo import ZoneInfo
-
-
 import pymongo
-import pytz
 from beanie import Document, Indexed
 from pydantic import BaseModel
 
 from .chat import ChatId
 from .constants import default_time_zone
+from .data_types import RecurringData
 from .intervals import DaySchedule, default_schedule
 from .language import Language
-from .data_types import RecurringData
 
 
 class ChatUser(BaseModel):

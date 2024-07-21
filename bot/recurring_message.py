@@ -1,23 +1,21 @@
 import logging
+from datetime import datetime, timedelta, timezone
+from typing import Optional
 
-from typing import Optional, Dict
-
-from aiogram import Router, Bot
-from aiogram.enums import ParseMode
+from aiogram import Bot, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram.utils.i18n import gettext as _
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.date import DateTrigger
 from cron_descriptor import get_description
-
-from .chat import ChatId
-from .constants import jobstore, title_max_length
 from croniter import croniter
-from datetime import datetime, timezone, timedelta
 
 from bot.custom_types import SendMessage
 from bot.fsm_states import RecurringAddingState
+
+from .chat import ChatId
+from .constants import jobstore, title_max_length
 from .data_types import RecurringData
 from .filters import HasChatState
 from .state import ChatState, save_state
@@ -145,7 +143,7 @@ def handle_recurring_message(
 ):
     @router.message(RecurringAddingState.EnterRecurringTitle, HasChatState())
     async def handle_title(message: Message, state: FSMContext, chat_state: ChatState):
-        if len(message.text) > title_max_length:
+        if message.text and len(message.text) > title_max_length:
             await message.answer(
                 _("Too long title. Send me the message title so that I can use it as the message identifier. Length limit - {N} symbols.").format(
                     N=title_max_length))
@@ -191,8 +189,8 @@ def handle_recurring_message(
     @router.message(RecurringAddingState.EnterRecurringExpression)
     async def handle_expression(message: Message, state: FSMContext):
         try:
-            temp = get_description(message.text)
-        except Exception as e:
+            get_description(message.text)
+        except Exception:
             await message.answer(_("Wrong format\\. Send me a cron expression so that I know when should I send the message\\. Example\\: 4 5 \\* \\* \\*\\. Click [here]({}) if you need help\\.").format("https://crontab.guru/"), parse_mode="MarkdownV2", disable_web_page_preview=True)
 
             return

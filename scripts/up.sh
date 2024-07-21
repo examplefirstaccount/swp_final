@@ -6,4 +6,4 @@ fi
 
 ./scripts/locales.sh
 
-docker compose up --build
+docker compose up -d --build

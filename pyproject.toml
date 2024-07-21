@@ -24,6 +24,11 @@ black = "^24.4.2"
 mypy = "^1.10.0"
 pylint = "^3.1.0"
 babel = "^2.15.0"
+pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+mongomock-motor = "^0.0.30"
+coverage = "^7.5.4"
+ruff = "^0.5.1"
 
 [tool.poetry.scripts]
 bot = "bot.main:main"

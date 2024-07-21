@@ -11,7 +11,7 @@ async def main(settings: Settings):
     username = settings.mongo_username
     password = settings.mongo_password
 
-    client = AsyncIOMotorClient(
+    client: AsyncIOMotorClient = AsyncIOMotorClient(
         f"mongodb://{username}:{password}@{host}:{port}", tz_aware=True
     )
 

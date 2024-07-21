@@ -1,5 +1,7 @@
 .direnv
 .mypy_cache
+.pytest_cache
+.ruff_cache
 .env
 data
 __pycache__

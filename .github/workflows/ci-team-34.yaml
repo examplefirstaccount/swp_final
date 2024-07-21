@@ -1,0 +1,59 @@
+name: Team 34 CI Pipeline
+
+on: [push, pull_request]
+
+env:
+  POETRY_VERSION: "1.8.3"
+  DEFAULT_PY_VERSION: "3.11"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ env.DEFAULT_PY_VERSION }}
+
+    - name: Linting
+      env:
+        RUFF_OUTPUT_FORMAT: github
+      run: |
+        pip install ruff
+        ruff check bot
+
+  test-with-coverage:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Poetry
+      shell: bash
+      run: pipx install poetry==${{ env.POETRY_VERSION }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ env.DEFAULT_PY_VERSION }}
+
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Run tests with coverage
+      run: |
+        poetry run coverage run -m pytest tests
+        poetry run coverage report
+        poetry run coverage xml
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: coverage.xml
