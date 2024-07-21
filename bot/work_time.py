@@ -2,6 +2,7 @@ import asyncio
 import re
 
 from aiogram import Bot, F, Router
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -61,9 +62,10 @@ async def clear_schedule_cache(
     bot: Bot, chat_state: ChatState, user: ChatUser, state: FSMContext
 ):
     if user.schedule_msg is not None:
-        await bot.delete_message(
-            chat_id=chat_state.chat_id, message_id=user.schedule_msg
-        )
+        try:
+            await bot.delete_message(chat_id=chat_state.chat_id, message_id=user.schedule_msg)
+        except TelegramBadRequest as e:
+            print(e.message)
 
     user.schedule_mode = None
     user.schedule_msg = None
@@ -72,7 +74,10 @@ async def clear_schedule_cache(
 
     if len(user.to_delete_msg_ids) > 0:
         for msg_id in user.to_delete_msg_ids:
-            await bot.delete_message(chat_id=chat_state.chat_id, message_id=msg_id)
+            try:
+                await bot.delete_message(chat_id=chat_state.chat_id, message_id=msg_id)
+            except TelegramBadRequest as e:
+                print(e.message)
         user.to_delete_msg_ids = set()
 
     await state.clear()
@@ -242,9 +247,10 @@ def handle_working_hours(
                 await asyncio.sleep(1)
                 await success_msg.delete()
                 for msg_id in user.to_delete_msg_ids:
-                    await bot.delete_message(
-                        chat_id=chat_state.chat_id, message_id=msg_id
-                    )
+                    try:
+                        await bot.delete_message(chat_id=chat_state.chat_id, message_id=msg_id)
+                    except TelegramBadRequest as e:
+                        print(e.message)
 
                 user.to_delete_msg_ids = set()
 
@@ -279,7 +285,10 @@ def handle_working_hours(
         user.to_edit_interval = None
 
         for msg_id in user.to_delete_msg_ids:
-            await bot.delete_message(chat_id=chat_state.chat_id, message_id=msg_id)
+            try:
+                await bot.delete_message(chat_id=chat_state.chat_id, message_id=msg_id)
+            except TelegramBadRequest as e:
+                print(e.message)
         user.to_delete_msg_ids = set()
         await state.clear()
         await save_state(chat_state)

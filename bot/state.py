@@ -76,6 +76,7 @@ class ChatState(Document):
     )
     recurring_messages: Dict[str, RecurringData] = dict()
 
+
 async def get_user(chat_state: ChatState, username: str) -> ChatUser:
     """Load a user from the ChatState by username or create a new one if not found.
 

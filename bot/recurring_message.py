@@ -97,10 +97,11 @@ async def send_recurring_messages(
         bot: Bot,
         shift: int
 ):
-    if datetime.now() <= interval_end:
+    if datetime.now(tz=timezone(timedelta(hours=3 - shift))) <= interval_end:
         if meeting_topic_id:
             await send_message(
-                chat_id=meeting_topic_id,
+                chat_id=meeting_chat_id,
+                message_thread_id=meeting_topic_id,
                 message=text
             )
         else:
