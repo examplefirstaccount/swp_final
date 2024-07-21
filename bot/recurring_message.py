@@ -18,6 +18,7 @@ from .chat import ChatId
 from .constants import jobstore, title_max_length
 from .data_types import RecurringData
 from .filters import HasChatState
+from .schedulerUtils import make_recurring_job_id
 from .state import ChatState, save_state
 
 
@@ -30,7 +31,7 @@ async def update_recurring_message(
 
     for chat in chats:
         if chat:
-            for message in chat.recurring_messages.values():
+            for title, message in chat.recurring_messages.items():
                 if message:
                     schedule_recurring(
                         bot=bot,
@@ -42,7 +43,8 @@ async def update_recurring_message(
                         meeting_topic_id=chat.topic_id,
                         scheduler=scheduler,
                         send_message=send_message,
-                        shift=chat.time_zone_shift
+                        shift=chat.time_zone_shift,
+                        title=title
                     )
 
 
@@ -56,12 +58,13 @@ def schedule_recurring(
         meeting_topic_id: Optional[int],
         scheduler: AsyncIOScheduler,
         send_message: SendMessage,
-        shift: int
+        shift: int,
+        title: str
 ):
     scheduler.add_job(
         jobstore=jobstore,
         func=send_recurring_messages,
-        id=make_job_id(meeting_chat_id, meeting_topic_id),
+        id=make_recurring_job_id(title, meeting_chat_id, meeting_topic_id),
         replace_existing=True,
         kwargs={
             "scheduler": scheduler,
@@ -73,7 +76,8 @@ def schedule_recurring(
             "interval_end": interval_end,
             "send_message": send_message,
             "bot": bot,
-            "shift": shift
+            "shift": shift,
+            "title": title
         },
         trigger=DateTrigger(run_date=croniter(expression,
                                               max(interval_start.replace(tzinfo=timezone(timedelta(hours=3 - shift))),
@@ -82,7 +86,7 @@ def schedule_recurring(
         misfire_grace_time=42,
     )
 
-    logging.info(scheduler.get_job(make_job_id(meeting_chat_id, meeting_topic_id)))
+    logging.info(scheduler.get_job(make_recurring_job_id(title, meeting_chat_id, meeting_topic_id)))
 
 
 async def send_recurring_messages(
@@ -95,9 +99,10 @@ async def send_recurring_messages(
         interval_end: datetime,
         send_message: SendMessage,
         bot: Bot,
-        shift: int
+        shift: int,
+        title: str
 ):
-    if datetime.now(tz=timezone(timedelta(hours=3 - shift))) <= interval_end:
+    if datetime.now(tz=timezone(timedelta(hours=3 - shift))) <= interval_end.replace(tzinfo=timezone(timedelta(hours=3 - shift))):
         if meeting_topic_id:
             await send_message(
                 chat_id=meeting_chat_id,
@@ -112,7 +117,7 @@ async def send_recurring_messages(
         scheduler.add_job(
             jobstore=jobstore,
             func=send_recurring_messages,
-            id=make_job_id(meeting_chat_id, meeting_topic_id),
+            id=make_recurring_job_id(title, meeting_chat_id, meeting_topic_id),
             replace_existing=True,
             kwargs={
                 "scheduler": scheduler,
@@ -124,19 +129,13 @@ async def send_recurring_messages(
                 "interval_end": interval_end,
                 "send_message": send_message,
                 "bot": bot,
-                "shift": shift
+                "shift": shift,
+                "title": title
             },
             trigger=DateTrigger(run_date=croniter(expression, datetime.now(tz=timezone(timedelta(hours=3 - shift)))).get_next(datetime)),
             timezone=timezone(timedelta(hours=3 - shift)),
             misfire_grace_time=42,
         )
-
-
-def make_job_id(meeting_chat_id: int, meeting_topic_id: Optional[int]):
-    if meeting_topic_id:
-        return f"recurring_message_for_{meeting_chat_id}_{meeting_topic_id}"
-    else:
-        return f"recurring_message_for_{meeting_chat_id}"
 
 
 def handle_recurring_message(

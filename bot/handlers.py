@@ -429,7 +429,7 @@ def handle_info_commands(
 
     @router.message(Command(bot_command_names.reset), HasChatState())
     async def reset(message: Message, chat_state: ChatState):
-        await reset_state(chat_state)
+        await reset_state(scheduler, chat_state)
         await message.reply(
             dedent(
                 _(
